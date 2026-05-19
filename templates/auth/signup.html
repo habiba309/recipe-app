@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <title>Sign Up – SimpleDelicacy</title>
+</head>
+<body>
+
+<div class="auth-box signup-box">
+    <form method="post" action="{% url 'signup' %}">
+        {% csrf_token %}
+        <h2>Sign Up</h2>
+
+        {% if form.non_field_errors %}
+        <p class="field-err" style="width:300px;text-align:center;">{{ form.non_field_errors.0 }}</p>
+        {% endif %}
+
+        <div class="inputbox">
+            <input type="text" name="username" value="{{ form.username.value|default:'' }}" required>
+            <span>Username</span><i></i>
+        </div>
+        {% if form.username.errors %}<p class="field-err">{{ form.username.errors.0 }}</p>{% endif %}
+
+        <div class="inputbox">
+            <input type="email" name="email" value="{{ form.email.value|default:'' }}" required>
+            <span>Email</span><i></i>
+        </div>
+        {% if form.email.errors %}<p class="field-err">{{ form.email.errors.0 }}</p>{% endif %}
+
+        <div class="inputbox">
+            <input type="password" name="password" required>
+            <span>Password</span><i></i>
+        </div>
+        {% if form.password.errors %}<p class="field-err">{{ form.password.errors.0 }}</p>{% endif %}
+
+        <div class="inputbox">
+            <input type="password" name="confirm_password" required>
+            <span>Confirm Password</span><i></i>
+        </div>
+        {% if form.confirm_password.errors %}<p class="field-err">{{ form.confirm_password.errors.0 }}</p>{% endif %}
+
+        <div class="role-select">
+            <select name="role" required>
+                <option value="" disabled {% if not form.role.value %}selected{% endif %}>Select Role</option>
+                <option value="admin" {% if form.role.value == 'admin' %}selected{% endif %}>Admin</option>
+                <option value="user"  {% if form.role.value == 'user'  %}selected{% endif %}>User</option>
+            </select>
+        </div>
+        {% if form.role.errors %}<p class="field-err">{{ form.role.errors.0 }}</p>{% endif %}
+
+        <button type="submit" class="submit-btn">Sign Up</button>
+        <div class="footer-links">
+            <span>Already have an account?</span>
+            <a href="{% url 'signin' %}">Sign In</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

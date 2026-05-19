@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block extra_css %}{% endblock %}
+    <title>{% block title %}SimpleDelicacy{% endblock %}</title>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<header class="navbar">
+    <div class="navbar-brand">
+        <span class="brand-icon">🍽</span>
+        <span class="brand-name">SimpleDelicacy</span>
+    </div>
+
+    <nav class="navbar-nav">
+        <ul>
+            {% if user.is_authenticated %}
+                {% if user.role == 'admin' %}
+                    <li><a href="{% url 'admin_home' %}" {% if request.resolver_match.url_name == 'admin_home' %}class="active"{% endif %}>Home</a></li>
+                {% else %}
+                    <li><a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a></li>
+                {% endif %}
+                <li><a href="{% url 'recipes_list' %}" {% if request.resolver_match.url_name == 'recipes_list' %}class="active"{% endif %}>Recipes</a></li>
+                <li><a href="{% url 'favorites' %}" {% if request.resolver_match.url_name == 'favorites' %}class="active"{% endif %}>Favorites</a></li>
+                {% if user.role == 'admin' %}
+                    <li><a href="{% url 'dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active"{% endif %}>Dashboard</a></li>
+                {% endif %}
+            {% else %}
+                <li><a href="{% url 'signin' %}" {% if request.resolver_match.url_name == 'signin' %}class="active"{% endif %}>Login</a></li>
+                <li><a href="{% url 'signup' %}" {% if request.resolver_match.url_name == 'signup' %}class="active"{% endif %}>Sign Up</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <div class="navbar-actions">
+        {% block nav_search %}{% endblock %}
+        {% if user.is_authenticated %}
+            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn" title="Log out">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                </button>
+            </form>
+        {% endif %}
+    </div>
+</header>
+
+<!-- ── Flash messages ── -->
+{% if messages %}
+<div class="messages-wrap">
+    {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }}">
+        <span>{{ msg }}</span>
+        <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+{% block extra_js %}{% endblock %}
+
+<script>
+    // Auto-dismiss alerts after 4 seconds
+    setTimeout(function () {
+        document.querySelectorAll('.alert').forEach(function (el) {
+            el.style.transition = 'opacity 0.5s';
+            el.style.opacity = '0';
+            setTimeout(() => el.remove(), 500);
+        });
+    }, 4000);
+</script>
+</body>
+</html>

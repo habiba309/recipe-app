@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <title>Sign In – SimpleDelicacy</title>
+</head>
+<body>
+
+{% if messages %}
+<div class="toast-wrap">
+    {% for msg in messages %}
+    <div class="toast toast-{{ msg.tags }}">{{ msg }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="auth-box">
+    <form method="post" action="{% url 'signin' %}">
+        {% csrf_token %}
+        <h2>Sign In</h2>
+
+        <div class="inputbox">
+            <input type="email" name="email" id="email"
+                   value="{{ form.email.value|default:'' }}" required>
+            <span>Email</span>
+            <i></i>
+        </div>
+        {% if form.email.errors %}<p class="field-err">{{ form.email.errors.0 }}</p>{% endif %}
+
+        <div class="inputbox">
+            <input type="password" name="password" id="password" required>
+            <span>Password</span>
+            <i></i>
+        </div>
+        {% if form.password.errors %}<p class="field-err">{{ form.password.errors.0 }}</p>{% endif %}
+
+        <button type="submit" class="submit-btn">Sign In</button>
+        <a href="{% url 'signup' %}" class="switch-link">Create an account</a>
+    </form>
+</div>
+
+</body>
+</html>

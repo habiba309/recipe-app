@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Recipes – SimpleDelicacy{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/recipes.css' %}">{% endblock %}
+
+{% block nav_search %}
+<div class="nav-search-wrap">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" placeholder="Search…" class="nav-search" id="navSearchSync"
+           value="{{ search_query }}">
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="recipes-header">
+    <h1>All Recipes</h1>
+    <p>Explore our full collection of delicious, hand-picked recipes.</p>
+</div>
+
+<!-- Filter + search bar — GET form, fully server-side -->
+<div class="filter-bar">
+    <div class="filter-btns">
+        {% for slug, label in filter_choices %}
+        <a href="{% url 'recipes_list' %}?course={{ slug }}{% if search_query %}&search={{ search_query }}{% endif %}"
+           class="filter-btn {% if course_filter == slug %}active{% endif %}">{{ label }}</a>
+        {% endfor %}
+    </div>
+
+    <form method="get" action="{% url 'recipes_list' %}" class="search-form">
+        {% if course_filter and course_filter != 'all' %}
+        <input type="hidden" name="course" value="{{ course_filter }}">
+        {% endif %}
+        <div class="nav-search-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" name="search" placeholder="Search recipes…"
+                   class="nav-search" id="recipeSearchInput" value="{{ search_query }}">
+        </div>
+    </form>
+</div>
+
+<section class="recipes-section">
+    <div class="recipes-grid">
+        {% for recipe in recipes %}
+        <div class="recipe-card">
+            <div class="recipe-img-wrap">
+                {% if recipe.image %}
+                <img loading="lazy" src="{{ recipe.image.url }}" alt="{{ recipe.name }}">
+                {% else %}
+                <div class="img-placeholder"></div>
+                {% endif %}
+
+                <!-- Favourite toggle: plain POST form — no JS required -->
+                <form method="post" action="{% url 'toggle_favorite' recipe.pk %}" class="heart-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit"
+                            class="heart-btn {% if recipe.pk in fav_ids %}is-fav{% endif %}"
+                            title="{% if recipe.pk in fav_ids %}Remove from favorites{% else %}Add to favorites{% endif %}">
+                        <i class="fa-{% if recipe.pk in fav_ids %}solid{% else %}regular{% endif %} fa-heart"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div class="card-body">
+                <span class="badge">{{ recipe.get_course_display }}</span>
+                <h3>{{ recipe.name }}</h3>
+                <p>{{ recipe.description|truncatechars:120 }}</p>
+                <a href="{% url 'recipe_detail' recipe.pk %}" class="view-btn">View Recipe</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <i class="fa-solid fa-bowl-food"></i>
+            <p>No recipes found. Try a different search or category.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* UI only: keep navbar search and recipe search box in sync visually */
+const navS = document.getElementById('navSearchSync');
+const recS = document.getElementById('recipeSearchInput');
+if (navS && recS) {
+    navS.addEventListener('input', function () { recS.value = this.value; });
+    recS.addEventListener('input', function () { navS.value = this.value; });
+}
+</script>
+{% endblock %}

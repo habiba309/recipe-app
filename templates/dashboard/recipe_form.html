@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} – SimpleDelicacy{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">{% endblock %}
+
+{% block content %}
+<div class="dash-wrap">
+    <div class="dash-top">
+        <h2>{{ title }}</h2>
+        <a href="{% url 'dashboard' %}" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="recipe-form" id="recipeForm">
+        {% csrf_token %}
+
+        <div class="form-card">
+
+            <!-- ── Image upload ── -->
+            <div class="img-col">
+                <h4>Recipe Image</h4>
+                <div class="upload-area" id="uploadArea"
+                     onclick="document.getElementById('id_image').click()" style="cursor:pointer;">
+                    {% if recipe and recipe.image %}
+                        <img id="previewImage" src="{{ recipe.image.url }}" alt="current image">
+                        <div id="uploadContent" style="display:none;">
+                    {% else %}
+                        <img id="previewImage" style="display:none;" alt="">
+                        <div id="uploadContent">
+                    {% endif %}
+                            <i class="fa-solid fa-camera"></i>
+                            <span>Click to upload</span>
+                            <small>JPG, PNG – max 2 MB</small>
+                        </div>
+                </div>
+                {{ form.image }}
+                {% if form.image.errors %}<p class="ferr">{{ form.image.errors.0 }}</p>{% endif %}
+                {% if recipe and recipe.image %}
+                <p class="hint">Leave empty to keep the current image.</p>
+                {% endif %}
+            </div>
+
+            <!-- ── Recipe fields ── -->
+            <div class="fields-col">
+
+                <div class="fg">
+                    <label>Recipe Name</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}<p class="ferr">{{ form.name.errors.0 }}</p>{% endif %}
+                </div>
+
+                <div class="fg">
+                    <label>Course</label>
+                    {{ form.course }}
+                    {% if form.course.errors %}<p class="ferr">{{ form.course.errors.0 }}</p>{% endif %}
+                </div>
+
+                <div class="fg">
+                    <label>Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}<p class="ferr">{{ form.description.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- ── Ingredients (dynamic rows via JS, submitted as arrays) ── -->
+                <div class="fg">
+                    <label>Ingredients</label>
+                    <div id="ingredientsContainer">
+                        {% for name, qty in ingredients_data %}
+                        <div class="ing-row">
+                            <input type="text" name="ingredient_name"
+                                   placeholder="Ingredient name" value="{{ name }}" required>
+                            <input type="text" name="ingredient_quantity"
+                                   placeholder="Quantity" value="{{ qty }}">
+                            <button type="button" class="rem-ing" onclick="removeIng(this)" title="Remove">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                        {% empty %}
+                        <div class="ing-row">
+                            <input type="text" name="ingredient_name" placeholder="Ingredient name" required>
+                            <input type="text" name="ingredient_quantity" placeholder="Quantity">
+                            <button type="button" class="rem-ing" onclick="removeIng(this)">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" id="addIngBtn" class="add-ing-btn">
+                        <i class="fa-solid fa-plus"></i> Add Ingredient
+                    </button>
+                </div>
+
+                <!-- ── Steps ── -->
+                <div class="fg">
+                    <label>Steps / Instructions</label>
+                    {{ form.instructions }}
+                    <p class="hint">{{ form.instructions.help_text }}</p>
+                    {% if form.instructions.errors %}<p class="ferr">{{ form.instructions.errors.0 }}</p>{% endif %}
+                </div>
+
+            </div>
+        </div>
+
+        <button type="submit" class="submit-recipe-btn">{{ title }}</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ recipe.name }} – SimpleDelicacy{% endblock %}   
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/detail.css' %}">{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <h2 class="recipe-title">{{ recipe.name }}</h2>
+    <p class="recipe-desc">{{ recipe.description }}</p>
+
+    <div class="detail-row">
+
+        <div class="detail-img-col">
+            {% if recipe.image %}
+            <img src="{{ recipe.image.url }}" alt="{{ recipe.name }}">
+            {% else %}
+            <div class="img-placeholder-lg"></div>
+            {% endif %}
+
+            <form method="post" action="{% url 'toggle_favorite' recipe.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'recipe_detail' recipe.pk %}">
+                <button type="submit" class="fav-detail-btn {% if is_favorite %}is-fav{% endif %}">
+                    <i class="fa-{% if is_favorite %}solid{% else %}regular{% endif %} fa-heart"></i>
+                    <span>{% if is_favorite %}Remove from Favorites{% else %}Add to Favorites{% endif %}</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="detail-info-col">
+            <h3>Ingredients</h3>
+            <ul class="ing-list">
+                {% for ing in recipe.ingredients.all %}
+                <li>{{ ing.name }} <em>({{ ing.quantity }})</em></li>
+                {% endfor %}
+            </ul>
+
+            <h3>Instructions</h3>
+            <ol class="steps-list">
+                {% for step in recipe.get_instructions_list %}
+                <li>{{ step }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+    </div>
+
+    <a href="{% url 'recipes_list' %}" class="back-link">← Back to Recipes</a>
+</div>
+{% endblock %}

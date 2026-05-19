@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Home – SimpleDelicacy{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
+
+{% block nav_search %}
+<div class="nav-search-wrap">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" placeholder="Search…" class="nav-search" id="homeNavSearch">
+</div>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-inner">
+        <h1>Discover Delicious Recipes</h1>
+        <p>From appetizers to desserts — find the perfect dish for any occasion.</p>
+        <a href="{% url 'recipes_list' %}" class="hero-cta">Browse All Recipes</a>
+    </div>
+</section>
+
+<!-- About strip -->
+<section class="about-strip">
+    <div class="about-text">
+        <p>From food shopping guides to meal prep hacks, our food preparation and recipes section is your
+            guide to everything eating related. Whether you're in the mood for something warm, cheesy or
+            full of carbs, you're sure to find exactly what you're craving.</p>
+        <p>Consider this your guide to everything we eat — where we get it, how we prepare it, and the
+            best ways to cook and serve it. Food simplified from source to finished product.</p>
+    </div>
+</section>
+
+<!-- Recipe cards -->
+<section class="home-grid-section">
+    <div class="home-grid">
+        {% for recipe in recipes %}
+        <article class="home-card">
+            <a href="{% url 'recipe_detail' recipe.pk %}">
+                {% if recipe.image %}
+                <img loading="lazy" src="{{ recipe.image.url }}" alt="{{ recipe.name }}">
+                {% else %}
+                <div class="card-img-placeholder"></div>
+                {% endif %}
+                <div class="card-body">
+                    <h3>{{ recipe.name }}</h3>
+                    <p>{{ recipe.description|truncatechars:100 }}</p>
+                    <span class="card-btn">View Recipe</span>
+                </div>
+            </a>
+        </article>
+        {% empty %}
+        <p class="empty-notice">
+            No recipes yet.
+            {% if user.role == 'admin' %}
+            <a href="{% url 'add_recipe' %}">Add the first recipe →</a>
+            {% endif %}
+        </p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

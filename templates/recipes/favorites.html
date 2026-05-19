@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Favorites – SimpleDelicacy{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/favorites.css' %}">{% endblock %}
+
+{% block nav_search %}
+<div class="nav-search-wrap">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="text" placeholder="Search…" class="nav-search">
+</div>
+{% endblock %}
+
+{% block content %}
+
+<header class="fav-header">
+    <h1>My Favorite Recipes</h1>
+    <p>All your saved recipes in one place</p>
+</header>
+
+<main class="fav-main">
+    {% if favorites %}
+    <div class="fav-grid">
+        {% for fav in favorites %}
+        <div class="fav-card">
+            <div class="fav-img-wrap">
+                {% if fav.recipe.image %}
+                <img src="{{ fav.recipe.image.url }}" alt="{{ fav.recipe.name }}">
+                {% else %}
+                <div class="img-placeholder"></div>
+                {% endif %}
+
+                <!-- Remove: POST form, no JS -->
+                <form method="post" action="{% url 'toggle_favorite' fav.recipe.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{% url 'favorites' %}">
+                    <button type="submit" class="fav-remove" title="Remove from favorites">
+                        <i class="fa-solid fa-heart"></i>
+                    </button>
+                </form>
+
+                <span class="fav-badge">Favorite</span>
+            </div>
+
+            <div class="fav-body">
+                <h3>{{ fav.recipe.name }}</h3>
+                <div class="fav-footer">
+                    <a href="{% url 'recipe_detail' fav.recipe.pk %}" class="fav-view">View</a>
+                    <span class="ing-count">
+                        <i class="fa-solid fa-utensils"></i>
+                        {{ fav.recipe.ingredients.count }} ingredients
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="fav-empty">
+        <h2>No favorites yet</h2>
+        <a href="{% url 'recipes_list' %}">
+            <i class="fa-solid fa-utensils"></i>&nbsp; Browse Recipes
+        </a>
+    </div>
+    {% endif %}
+</main>
+
+{% endblock %}
